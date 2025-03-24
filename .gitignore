@@ -1,0 +1,36 @@
+# Node modules (both frontend & backend)
+**/node_modules/
+
+# Build folders
+**/build/
+**/dist/
+
+# Environment variables
+**/.env
+**/.env.local
+
+# Logs
+**/logs/
+*.log
+
+# Cache
+**/.cache/
+**/.next/
+
+# OS/IDE files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Test/coverage
+**/coverage/
+
+# MongoDB dumps
+**/dump/
+
+# Misc
+*.pem
+*.key
+*.tsbuildinfo
+*.pid
