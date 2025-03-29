@@ -1,0 +1,9 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer components{
+    .menuItems {
+        @apply flex items-center gap-3 cursor-pointer py-2 px-0 hover:bg-light-soft hover:dark:bg-dark-soft;
+    }
+}
