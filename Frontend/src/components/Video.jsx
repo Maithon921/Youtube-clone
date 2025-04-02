@@ -2,40 +2,93 @@ import ThumbUpOutlinedIcon from "@mui/icons-material/ThumbUpOutlined";
 import ThumbDownOffAltOutlinedIcon from "@mui/icons-material/ThumbDownOffAltOutlined";
 import ReplyOutlinedIcon from "@mui/icons-material/ReplyOutlined";
 import AddTaskOutlinedIcon from "@mui/icons-material/AddTaskOutlined";
-import Comments from "./Comments";
-import Card from "./Card.jsx";
+import Comments from "./Comments.jsx";
+import { useLocation } from "react-router-dom";
+import { useSelector, useDispatch } from "react-redux";
+import { useEffect, useState } from "react";
+import axios from "./axiosInstance.js";
+import { dislike, fetchSuccess, like } from "../redux/videoSlice.js";
+import { format } from "timeago.js";
+import ThumbUpIcon from "@mui/icons-material/ThumbUp";
+import ThumbDownIcon from "@mui/icons-material/ThumbDown";
+import { subscription } from "../redux/userSlice.js";
+import Recommendation from "./Recommendation.jsx";
 
 function Video() {
+  const { currentUser } = useSelector((state) => state.user);
+  const { currentVideo } = useSelector((state) => state.video);
+  const dispatch = useDispatch();
+
+  const path = useLocation().pathname.split("/")[2];
+
+  const [channel, setChannel] = useState({});
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const videoRes = await axios.get(`/videos/find/${path}`);
+        const channelRes = await axios.get(`/users/find/${videoRes.data.userId}`);
+
+        setChannel(channelRes.data);
+        dispatch(fetchSuccess(videoRes.data));
+      } catch (err) {}
+    };
+    fetchData();
+  }, [path, dispatch]);
+
+  const handleLike = async () => {
+    await axios.put(`/users/like/${currentVideo._id}`);
+    dispatch(like(currentUser.others._id));
+  };
+  const handleDislike = async () => {
+    await axios.put(`/users/dislike/${currentVideo._id}`);
+    dispatch(dislike(currentUser.others._id));
+  };
+
+  const handleSub = async () => {
+    currentUser.others.subscribedUsers.includes(channel._id)
+      ? await axios.put(`/users/unsub/${channel._id}`)
+      : await axios.put(`/users/sub/${channel._id}`);
+    dispatch(subscription(channel._id));
+  };
+
   return (
     <div className="flex gap-4">
       <div className="flex-[5]">
         <div>
-          <iframe
-            // width="560"
-            height="350"
-            className="w-full"
-            src="https://www.youtube.com/embed/wOpSqV9E7HY?si=wZZJLwrZww0Jr5Ms"
-            title="YouTube video player"
-            frameborder="0"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-            referrerpolicy="strict-origin-when-cross-origin"
-            allowfullscreen
-          ></iframe>
+          <video
+            src={currentVideo.videoUrl}
+            className="max-h-[420px] w-full object-cover"
+          ></video>
           <h1 className="text-lg font-normal mt-5 mb-[10px] text-light-text dark:text-dark-text">
-            Test Info
+            {currentVideo.title}
           </h1>
           <div className="flex items-center justify-between">
             <span className="text-light-textSoft dark:text-dark-textSoft">
-              7,948,154 views • Jun 22, 2022
+              {currentVideo.views} views • {format(currentVideo.createdAt)}
             </span>
             <div className="flex gap-5 text-light-text dark:text-dark-text">
-              <button className="flex items-center gap-1 cursor-pointer">
-                <ThumbUpOutlinedIcon />
-                123
+              <button
+                className="flex items-center gap-1 cursor-pointer"
+                onClick={handleLike}
+              >
+                {currentVideo.likes?.includes(currentUser.others._id) ? (
+                  <ThumbUpIcon />
+                ) : (
+                  <ThumbUpOutlinedIcon />
+                )}
+                {currentVideo.likes?.length}
               </button>
-              <button className="flex items-center gap-1 cursor-pointer">
-                <ThumbDownOffAltOutlinedIcon />
-                Dislike
+              <button
+                className="flex items-center gap-1 cursor-pointer"
+                onClick={handleDislike}
+              >
+                {currentVideo.dislikes.includes(currentUser.others._id) ? (
+                  <ThumbDownIcon />
+                ) : (
+                  <ThumbDownOffAltOutlinedIcon />
+                )}
+                dislike
               </button>
               <button className="flex items-center gap-1 cursor-pointer">
                 <ReplyOutlinedIcon />
@@ -43,7 +96,7 @@ function Video() {
               </button>
               <button className="flex items-center gap-1 cursor-pointer">
                 <AddTaskOutlinedIcon />
-                Share
+                Save
               </button>
             </div>
           </div>
@@ -52,41 +105,32 @@ function Video() {
         <div className="flex justify-between">
           <div className="flex gap-5">
             <img
-              src="https://yt3.ggpht.com/ytc/AIdro_nY8bc9x99Pp803PZIdrczFbIaYvFp2nrBmDxqhUvVuuiM=s88-c-k-c0x00ffffff-no-rj"
+              src={channel.img}
               alt=""
               className="h-[50px] w-[50px] rounded-full"
             />
             <div className="flex flex-col text-light-text dark:text-dark-text">
-              <span className="font-medium">Agogo vi</span>
-              <span className="mt-1 mb-5 text-light-textSoft dark:text-light-textSoft text-xs">100k subscribers</span>
-              <p className="text-sm">
-                Lorem ipsum dolor sit amet consectetur adipisicing elit.
-                Accusamus tempore nesciunt fugit, quod vitae quisquam doloribus
-                accusantium excepturi cum nemo. Alias harum laudantium id!
-                Voluptatem quisquam at numquam laboriosam impedit?
-              </p>
+              <span className="font-medium">{channel.name}</span>
+              <span className="mt-1 mb-5 text-light-textSoft dark:text-light-textSoft text-xs">
+                {channel.subscribers} subscribers
+              </span>
+              <p className="text-sm">{currentVideo.description}</p>
             </div>
           </div>
-          <button className="bg-red-700 font-medium text-white border-none rounded-md h-max py-2 px-4  cursor-pointer">SUBSCRIBE</button>
+          <button
+            className="bg-red-700 font-medium text-white border-none rounded-md h-max py-2 px-4  cursor-pointer"
+            onClick={handleSub}
+          >
+            {currentUser.others.subscribedUsers.includes(channel._id)
+              ? "SUBSCRIBED"
+              : "SUBSCRIBE"}
+          </button>
         </div>
         <hr className="my-6 mx-0 border border-light-soft dark:border-dark-soft" />
-        <Comments/>
+        <Comments videoId={currentVideo._id} />
       </div>
 
-      <div className="flex-[2]">
-        <Card type= "sm"/>
-        <Card type= "sm"/>
-        <Card type= "sm"/>
-        <Card type= "sm"/>
-        <Card type= "sm"/>
-        <Card type= "sm"/>
-        <Card type= "sm"/>
-        <Card type= "sm"/>
-        <Card type= "sm"/>
-        <Card type= "sm"/>
-        <Card type= "sm"/>
-        <Card type= "sm"/>
-      </div>
+      <Recommendation tags={currentVideo.tags}/>
     </div>
   );
 }

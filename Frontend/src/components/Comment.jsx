@@ -1,20 +1,34 @@
-function Comment() {
+import axios from "axios";
+import { useEffect, useState } from "react";
+import { format } from "timeago.js";
+
+function Comment({comment}) {
+
+  const [channel, setChannel] = useState({});
+
+
+  useEffect(()=>{
+    const fetchComment = async()=> {
+      const res = await axios.get(`/users/find/${comment.userId}`);
+      setChannel(res.data)
+    };
+    fetchComment();
+  },[comment.userId])
+
   return (
+    
     <div className="flex gap-2 my-7 mx-0">
       <img
-        src="https://yt3.ggpht.com/ytc/AIdro_nY8bc9x99Pp803PZIdrczFbIaYvFp2nrBmDxqhUvVuuiM=s88-c-k-c0x00ffffff-no-rj"
-        alt=""
-        className="h-[50px] w-[50px] rounded-full"
+        src={channel.img}
+    
+        className="h-10 w-10 rounded-full"
       />
       <div className="flex flex-col gap-2 text-light-text dark:text-dark-text">
         <span className="text-[13px] font-medium">
-          John Doe <span className="text-xs font-normal text-light-textSoft dark:text-dark-textSoft ml-1">1 day ago</span>
+          {channel.name} <span className="text-xs font-normal text-light-textSoft dark:text-dark-textSoft ml-1">{format(channel.createdAt)}</span>
         </span>
         <span className="text-sm">
-          Lorem ipsum dolor, sit amet consectetur adipisicing elit. Unde nostrum
-          eos vitae debitis error ex praesentium neque excepturi delectus
-          accusamus, velit incidunt reiciendis voluptatibus deleniti in! Minus,
-          aut. Quisquam, error.
+          {comment.description}
         </span>
       </div>
     </div>
