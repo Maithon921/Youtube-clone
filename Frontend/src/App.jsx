@@ -1,38 +1,56 @@
+// import { useState } from "react";
+// import "./App.css";
+// import Navbar from "./components/Navbar.jsx";
+// import { Outlet } from "react-router-dom";
+// import { useTheme } from "./utils/themeContext.jsx";
+
+// function App() {
+//   const { darkMode, setDarkMode } = useTheme();
+//   const [sidebar, setSidebar] = useState(false)
+
+//   return (
+//     <div className={`${darkMode ? "dark" : ""} `}>
+//       <div className=" bg-light-bg dark:bg-dark-bg">
+//         {/* Navbar */}
+//         <Navbar setSidebar= {setSidebar} sidebar={sidebar} setDarkMode= {setDarkMode} />
+//             <Outlet/> 
+//       </div>
+//     </div>
+//   );
+// }
+
+// export default App;
+
+
+
+import { useState } from "react";
 import "./App.css";
-import Home from "./components/Home.jsx";
-import Menu from "./components/Menu.jsx";
 import Navbar from "./components/Navbar.jsx";
-import Search from "./components/Search.jsx";
-import SignIn from "./components/SignIn.jsx";
-import Video from "./components/Video.jsx";
+import { Outlet } from "react-router-dom";
 import { useTheme } from "./utils/themeContext.jsx";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 function App() {
   const { darkMode, setDarkMode } = useTheme();
+  const [sidebar, setSidebar] = useState(false);
 
   return (
-    <div className={`${darkMode ? "dark" : ""} flex`}>
-      <BrowserRouter>
-        {/* <Menu /> */}
-        <div className="flex-[7] bg-light-bg dark:bg-dark-bg">
-          <Navbar />
-          <div className="py-3 px-1">
-            <Routes>
-              <Route path="/">
-                <Route index element={<Home type="random"/>} />
-                <Route path="trends" element={<Home type ="trend"/>} />
-                <Route path="subscriptions" element={<Home type ="sub"/>} />
-                <Route path="search" element={<Search/>} />
-                <Route path="signin" element={<SignIn/>} />
-                <Route path="video" >
-                  <Route path=":id" element={<Video/>} />
-                </Route>
-              </Route>
-            </Routes>
-          </div>
-        </div>
-      </BrowserRouter>
+    <div className={`${darkMode ? "dark" : ""}`}>
+      <div className="bg-light-bg dark:bg-dark-bg min-h-screen">
+        {/* Navbar */}
+        <Navbar
+          setSidebar={setSidebar}
+          sidebar={sidebar}
+          setDarkMode={setDarkMode}
+        />
+
+        {/* Page Content */}
+        <Outlet />
+
+        {/* Toast Notifications */}
+        <ToastContainer position="bottom-center" autoClose={3000} theme="dark" />
+      </div>
     </div>
   );
 }

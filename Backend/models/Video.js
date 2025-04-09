@@ -26,6 +26,10 @@ const VideoSchema = mongoose.Schema(
       type: Number,
       default: 0,
     },
+    viewBy: {
+      type: [String],
+      default:[],
+    },
     tags: {
       type: [String],
       default: [],
@@ -37,6 +41,17 @@ const VideoSchema = mongoose.Schema(
     dislikes: {
       type: [String],
       default: [],
+    },
+    category:  {
+      type: String,
+    },
+    videoPublicId: {
+      type: String,
+      required: true,
+    },
+    imgPublicId: {
+      type: String,
+      required: true,
     },
   },
   { timestamps: true }

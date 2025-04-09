@@ -14,20 +14,32 @@ import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
 import FlagOutlinedIcon from "@mui/icons-material/FlagOutlined";
 import HelpOutlineOutlinedIcon from "@mui/icons-material/HelpOutlineOutlined";
 import SettingsBrightnessOutlinedIcon from "@mui/icons-material/SettingsBrightnessOutlined";
+import youtube from "../img/youtube.png";
+import MenuIcon from "@mui/icons-material/Menu";
+import LogoutIcon from '@mui/icons-material/Logout';
 import { useTheme } from "../utils/themeContext.jsx";
 import { Link } from "react-router-dom";
 import { useSelector } from "react-redux";
 
-function Menu() {
+function Menu({ sidebar, setSidebar }) {
   const { darkMode, setDarkMode } = useTheme();
   const { currentUser } = useSelector((state) => state.user);
 
   return (
-    <div className="container flex-1 h-max text-[13px] sticky top-0 bg-light-bgLighter dark:bg-dark-bgLighter text-light-text dark:text-dark-text ">
-      <div className="py-4 px-7">
-        {/* logo */}
-       
-        {/* items */}
+    <div className={`absolute z-30 h-dvh w-full text-[13px] top-0 -left-1  text-light-text dark:text-dark-text transition-all duration-300 overflow-y-scroll no-scrollbar flex`}>
+      <div className="py-4 bg-light-bgLighter overflow-y-scroll dark:bg-dark-bgLighter w-60 no-scrollbar ">
+        <div className="flex items-center pl-2 space-x-2 text-light-text dark:text-dark-text">
+          <MenuIcon
+            onClick={() => setSidebar((prev) => (prev ? false : true))}
+            className="cursor-pointer sm:hidden"
+          />
+          <Link to="/">
+            <div className="flex items-center font-bold">
+              <img src={youtube} alt="logo" className="h-4 sm:h-5" />
+              <span className="text-xs sm:text-lg">ViewTube</span>
+            </div>
+          </Link>
+        </div>
         <Link to="/">
           <div className="menuItems">
             <HomeIcon />
@@ -51,6 +63,11 @@ function Menu() {
 
         <hr className="my-[10px] border border-light-soft dark:border-dark-soft" />
 
+        <div className="menuItems" onClick={() => setDarkMode(!darkMode)}>
+          <SettingsBrightnessOutlinedIcon />
+          {darkMode ? "Light" : "Dark"} Mode
+        </div>
+
         <div className="menuItems">
           <VideoLibraryOutlinedIcon />
           Library
@@ -65,10 +82,10 @@ function Menu() {
 
         {!currentUser && (
           <>
-            <div>
+            <div className="px-3">
               Sign in to like video, comment, and subscribe.
               <Link to="signin">
-                <button className="py-1 px-3 bg-transparent border border-blue-600 text-blue-600 rounded-sm font-medium mt-2 cursor-pointer flex justify-center items-center gap-1">
+                <button className="py-1 px-2 bg-transparent border border-blue-600 text-blue-600 rounded-sm font-medium mt-2 cursor-pointer flex justify-center items-center gap-1">
                   <AccountCircleOutlinedIcon />
                   SIGN IN
                 </button>
@@ -125,14 +142,119 @@ function Menu() {
           <HelpOutlineOutlinedIcon />
           Help
         </div>
-
-        <div className="menuItems" onClick={() => setDarkMode(!darkMode)}>
-          <SettingsBrightnessOutlinedIcon />
-          {darkMode ? "Light" : "Dark"} Mode
+        <div className="menuItems">
+          <LogoutIcon />
+          Log Out
         </div>
+       
       </div>
+      <div
+        onClick={() => setSidebar((prev) => (prev ? false : true))}
+        className="bg-[#1c1b1b39] w-[calc(100%-240px)] transition-all duration-1000"
+      ></div>
     </div>
   );
 }
 
 export default Menu;
+
+{
+  /* <div className="sidebar " style={{ left: sidebar ? "-100%" : "0px" }}>
+  <div className="left bg-white">
+    <div className="top">
+      <i
+        onClick={() => setSidebar(!sidebar)}
+        className="ri-menu-fill cursor-pointer ml-1"
+      ></i>
+      <h2>
+        <i className="ri-youtube-fill yti"></i>Youtube<span>IN</span>
+      </h2>
+    </div>
+    <div className="first-menu">
+      <div
+        className="options"
+        onClick={() => {
+          navigate("/"), setSidebar(!sidebar);
+        }}
+      >
+        <i className="ri-home-5-fill"></i>
+        <p>Home</p>
+      </div>
+
+      <div className="options">
+        <img
+          src="https://i.pinimg.com/originals/17/d2/18/17d21878c22fe49e7e4752eecaa36541.png"
+          alt="icon"
+        />
+        <p>Shorts</p>
+      </div>
+
+      <div className="options">
+        <img
+          src="https://cdn.iconscout.com/icon/free/png-512/free-subscription-logo-icon-download-in-svg-png-gif-file-formats--youtube-menu-subs-social-media-pack-logos-icons-3789620.png?f=webp&w=512"
+          alt="Subscriptions"
+        />
+        <p>Subscriptions</p>
+      </div>
+
+      <div className="options">
+        <img
+          src="https://cdn.iconscout.com/icon/free/png-512/free-youtube-music-logo-icon-download-in-svg-png-gif-file-formats--social-media-app-pack-logos-icons-3222736.png?f=webp&w=512"
+          alt="Music"
+        />
+        <p>Music</p>
+      </div>
+    </div>
+    <div className="first-menu">
+      <div className="options">
+        <p>You</p>
+        <i className="ri-arrow-right-wide-fill"></i>
+      </div>
+      <div className="options">
+        <i className="ri-contacts-book-2-line"></i>
+        <p>Your Channel</p>
+      </div>
+
+      <div className="options">
+        <i className="ri-history-fill"></i>
+        <p>History</p>
+      </div>
+
+      <div className="options">
+        <i className="ri-play-list-2-fill"></i>
+        <p>Playlist</p>
+      </div>
+
+      <div className="options">
+        <i className="ri-movie-line"></i>
+        <p>Your Videos</p>
+      </div>
+      <div className="options">
+        <i className="ri-lightbulb-line"></i>
+        <p>Your Courses</p>
+      </div>
+      <div className="options">
+        <i className="ri-time-line"></i>
+        <p>Watch Later</p>
+      </div>
+      <div className="options">
+        <i className="ri-thumb-up-line"></i>
+        <p>Liked videos</p>
+      </div>
+      <div className="options">
+        <i className="ri-download-line"></i>
+        <p>Downloads</p>
+      </div>
+      <div className="options">
+        <i className="ri-scissors-cut-line"></i>
+        <p>Your clips</p>
+      </div>
+    </div>
+  </div>
+  <div
+    onClick={() => setSidebar(!sidebar)}
+    className="right"
+    style={{ opacity: sidebar ? "0" : "1" }}
+  ></div>
+</div>; */
+}

@@ -2,8 +2,36 @@
 @tailwind components;
 @tailwind utilities;
 
-@layer components{
-    .menuItems {
-        @apply flex items-center gap-3 cursor-pointer py-2 px-0 hover:bg-light-soft hover:dark:bg-dark-soft;
-    }
+@layer components {
+  .menuItems {
+    @apply flex items-center gap-3 cursor-pointer py-2 pl-6 hover:bg-light-soft dark:hover:bg-dark-soft;
+  }
+  .input-style {
+    @apply border outline-none border-light-soft dark:border-dark-soft rounded-md p-2 bg-transparent w-full;
+  }
+
+  .btn-style {
+    @apply rounded-md py-2 px-4 font-medium cursor-pointer bg-light-soft dark:bg-dark-soft text-light-textSoft dark:text-dark-textSoft hover:bg-light-soft/60 hover:dark:bg-dark-soft/60;
+  }
+}
+
+@layer utilities {
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+}
+
+html,
+body {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+html::-webkit-scrollbar,
+body::-webkit-scrollbar {
+  display: none;
 }

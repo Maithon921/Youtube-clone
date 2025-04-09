@@ -18,6 +18,7 @@ const UserSchema = mongoose.Schema(
     },
     img: {
       type: String,
+      default: "https://www.pngplay.com/wp-content/uploads/12/User-Avatar-Profile-Clip-Art-Transparent-File.png"
     },
     subscribers: {
       type: Number,

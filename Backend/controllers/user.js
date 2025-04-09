@@ -1,35 +1,84 @@
 import { createError } from "../error.js";
 import User from "../models/User.js";
 import Video from "../models/Video.js"
+import { v2 as cloudinary } from 'cloudinary';
+
+// export const update = async (req, res, next) => {
+//   if (req.params.id === req.user.id) {
+//     try {
+//       const updatedUser = await User.findByIdAndUpdate(
+//         req.params.id,
+//         {
+//           $set: req.body,
+//         },
+//         { new: true }
+//       );
+//       res.status(200).json(updatedUser);
+//     } catch (err) {
+//       next(err);
+//     }
+//   } else {
+//     return next(createError(403, "You can update only your account"));
+//   }
+// };
 
 export const update = async (req, res, next) => {
-  if (req.params.id === req.user.id) {
-    try {
-      const updatedUser = await User.findByIdAndUpdate(
-        req.params.id,
-        {
-          $set: req.body,
-        },
-        { new: true }
-      );
-      res.status(200).json(updatedUser);
-    } catch (err) {
-      next(err);
-    }
-  } else {
+  if (req.params.id !== req.user.id) {
     return next(createError(403, "You can update only your account"));
   }
-};
-export const deleteUser = async (req, res, next) => {
-  if (req.params.id === req.user.id) {
-    try {
-      const deletedUser = await User.findByIdAndDelete(req.params.id);
-      res.status(200).json({ message: "User deleted", deletedUser });
-    } catch (err) {
-      next(err);
+
+  try {
+    const user = await User.findById(req.params.id);
+
+    // If new image is uploaded and previous is custom (not default), delete old one
+    if (req.body.img && user.img && !user.img.includes("pngplay.com")) {
+      const publicId = user.img.split("/").pop().split(".")[0];
+      await cloudinary.uploader.destroy(publicId);
     }
-  } else {
-    return next(createError(403, "You can delete only your account"));
+
+    const updatedUser = await User.findByIdAndUpdate(
+      req.params.id,
+      { $set: req.body },
+      { new: true }
+    );
+    res.status(200).json(updatedUser);
+  } catch (err) {
+    next(err);
+  }
+};
+
+// export const deleteUser = async (req, res, next) => {
+//   if (req.params.id === req.user.id) {
+//     try {
+//       const deletedUser = await User.findByIdAndDelete(req.params.id);
+//       res.status(200).json({ message: "User deleted", deletedUser });
+//     } catch (err) {
+//       next(err);
+//     }
+//   } else {
+//     return next(createError(403, "You can delete only your account"));
+//   }
+// };
+
+export const deleteUser = async (req, res, next) => {
+  try {
+    const user = await User.findById(req.params.id);
+
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    // Avoid deleting default avatar
+    const isCustomImg = user.img && !user.img.includes("default-avatar");
+
+    if (isCustomImg) {
+      const publicId = user.img.split("/").pop().split(".")[0];
+      await cloudinary.uploader.destroy(publicId);
+    }
+
+    await User.findByIdAndDelete(req.params.id);
+
+    res.status(200).json({ message: "User deleted successfully" });
+  } catch (err) {
+    next(err);
   }
 };
 

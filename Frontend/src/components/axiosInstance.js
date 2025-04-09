@@ -1,6 +1,19 @@
+
 import axios from "axios";
 
-axios.defaults.withCredentials = true;
-axios.defaults.baseURL = "http://localhost:5000/api";
+const axiosInstance = axios.create({
+  baseURL: "http://localhost:5000/api",
+});
 
-export default axios;
+// 🔐 Automatically attach token from localStorage
+axiosInstance.interceptors.request.use((config) => {
+  const token = localStorage.getItem("token");
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
+
+export const plainAxios = axios.create();
+
+export default axiosInstance;
