@@ -10,6 +10,7 @@ function DeleteAccountModal({ setOpen }) {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
+  // handle deleting the user and loging out
   const handleDelete = async () => {
     try {
       await axios.delete(`/users/${currentUser._id}`);
@@ -32,7 +33,8 @@ function DeleteAccountModal({ setOpen }) {
         />
         <h2 className="text-xl font-semibold mb-4">Delete Account</h2>
         <p className="mb-6">
-          Are you sure you want to delete your account? This action is permanent and cannot be undone.
+          Are you sure you want to delete your account? This action is permanent
+          and cannot be undone.
         </p>
         <div className="flex justify-end gap-3">
           <button
@@ -43,7 +45,7 @@ function DeleteAccountModal({ setOpen }) {
           </button>
           <button
             onClick={handleDelete}
-            className="px-4 py-2 rounded bg-red-600 text-white hover:bg-red-700"
+            className="px-4 py-2 rounded bg-blue-600 text-white hover:bg-blue-700"
           >
             Delete
           </button>

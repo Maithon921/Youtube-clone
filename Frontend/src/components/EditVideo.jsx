@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
-import CloseIcon from '@mui/icons-material/Close';
+import CloseIcon from "@mui/icons-material/Close";
 import axios, { plainAxios } from "./axiosInstance";
-import { toast, ToastContainer } from "react-toastify";
+import { toast} from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 function EditVideoModal({ video, setIsEditing, onUpdate }) {
+  // sates to handle input forms value and file uploads locally
   const [img, setImg] = useState(null);
   const [videoFile, setVideoFile] = useState(null);
   const [imgProgress, setImgProgress] = useState(0);
@@ -14,16 +15,20 @@ function EditVideoModal({ video, setIsEditing, onUpdate }) {
   const [tags, setTags] = useState(video.tags.join(","));
   const [category, setCategory] = useState("");
 
+  // store updated cloudinary file urls after uploading it
   const [imgUrl, setImgUrl] = useState(video.imgUrl);
   const [videoUrl, setVideoUrl] = useState(video.videoUrl);
 
+  // handles file uploads for both image and video, also tracks the upload progress
   const handleUpload = async (file, type) => {
     const data = new FormData();
     data.append("file", file);
-    data.append("upload_preset", "ViewTube");
-    data.append("cloud_name", "drbk4qx0n");
+    data.append("upload_preset", import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET);
+    data.append("cloud_name", import.meta.env.VITE_CLOUDINARY_CLOUD_NAME);
 
-    const url = `https://api.cloudinary.com/v1_1/drbk4qx0n/${type === "video" ? "video" : "image"}/upload`;
+    const url = `https://api.cloudinary.com/v1_1/${
+      import.meta.env.VITE_CLOUDINARY_CLOUD_NAME
+    }/${type === "video" ? "video" : "image"}/upload`;
 
     const config = {
       onUploadProgress: (e) => {
@@ -42,6 +47,7 @@ function EditVideoModal({ video, setIsEditing, onUpdate }) {
     }
   };
 
+  // to upload the file immediately when selected
   useEffect(() => {
     if (img) {
       uploadAndSetUrl(img, "image");
@@ -54,6 +60,7 @@ function EditVideoModal({ video, setIsEditing, onUpdate }) {
     }
   }, [videoFile]);
 
+  // uploading the file and sets the url to corresponding state
   const uploadAndSetUrl = async (file, type) => {
     const url = await handleUpload(file, type);
     if (url) {
@@ -61,6 +68,7 @@ function EditVideoModal({ video, setIsEditing, onUpdate }) {
     }
   };
 
+  // saves data to backend and update ui
   const handleSave = async () => {
     try {
       const payload = {
@@ -74,7 +82,7 @@ function EditVideoModal({ video, setIsEditing, onUpdate }) {
 
       const res = await axios.put(`/videos/${video._id}`, payload);
       toast.success("Video updated!");
-      onUpdate(res.data);
+      onUpdate(res.data); // update data and ui in parent
       setTimeout(() => setIsEditing(false), 1500);
     } catch (err) {
       console.error(err);
@@ -85,11 +93,11 @@ function EditVideoModal({ video, setIsEditing, onUpdate }) {
   return (
     <div
       className="fixed inset-0 bg-black bg-opacity-60 z-50 flex items-center justify-center"
-      onClick={() => setIsEditing(false)}
+      onClick={() => setIsEditing(false)} // Close modal when clicked outside of the main moddal
     >
       <div
-        className="bg-light-bgLighter dark:bg-dark-bgLighter p-6 rounded w-[90%] sm:w-[450px] max-h-[90vh] overflow-y-auto"
-        onClick={(e) => e.stopPropagation()}
+        className="bg-light-bgLighter space-y-3 dark:bg-dark-bgLighter p-6 rounded w-[90%] sm:w-[450px] max-h-[90vh] overflow-y-auto text-sm"
+        onClick={(e) => e.stopPropagation()} //prevents modal close whn clicked inside thhe container
       >
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-lg font-semibold">Edit Video</h2>
@@ -98,20 +106,34 @@ function EditVideoModal({ video, setIsEditing, onUpdate }) {
             onClick={() => setIsEditing(false)}
           />
         </div>
-
-        <label>Video File (optional):</label>
-        <input type="file" accept="video/*" onChange={(e) => setVideoFile(e.target.files[0])} />
+        {/* upload new video details optionally */}
+        <label>Video File (optional): </label>
+        <input
+          type="file"
+          accept="video/*"
+          onChange={(e) => setVideoFile(e.target.files[0])}
+        />
         {videoProgress > 0 && (
           <div className="w-full bg-gray-300 h-2 rounded mt-1 mb-2">
-            <div className="bg-red-600 h-full" style={{ width: `${videoProgress}%` }} />
+            <div
+              className="bg-red-600 h-full"
+              style={{ width: `${videoProgress}%` }}
+            />
           </div>
         )}
 
-        <label>Thumbnail Image (optional):</label>
-        <input type="file" accept="image/*" onChange={(e) => setImg(e.target.files[0])} />
+        <label>Thumbnail(optional): </label>
+        <input
+          type="file"
+          accept="image/*"
+          onChange={(e) => setImg(e.target.files[0])}
+        />
         {imgProgress > 0 && (
           <div className="w-full bg-gray-300 h-2 rounded mt-1 mb-2">
-            <div className="bg-blue-600 h-full" style={{ width: `${imgProgress}%` }} />
+            <div
+              className="bg-blue-600 h-full"
+              style={{ width: `${imgProgress}%` }}
+            />
           </div>
         )}
 
@@ -143,10 +165,10 @@ function EditVideoModal({ video, setIsEditing, onUpdate }) {
           type="text"
           value={category}
           onChange={(e) => setCategory(e.target.value)}
-          placeholder="Category (comma separated)"
+          placeholder="Category(one Category)"
           className="w-full p-2 mt-2 border rounded bg-transparent"
         />
-
+        {/* submit button */}
         <button
           onClick={handleSave}
           className="mt-4 bg-blue-600 text-white px-4 py-2 rounded w-full"
@@ -154,7 +176,6 @@ function EditVideoModal({ video, setIsEditing, onUpdate }) {
           Save Changes
         </button>
       </div>
-      <ToastContainer position="top-right" autoClose={2500} />
     </div>
   );
 }

@@ -18,7 +18,8 @@ const UserSchema = mongoose.Schema(
     },
     img: {
       type: String,
-      default: "https://www.pngplay.com/wp-content/uploads/12/User-Avatar-Profile-Clip-Art-Transparent-File.png"
+      default:
+        "https://www.pngplay.com/wp-content/uploads/12/User-Avatar-Profile-Clip-Art-Transparent-File.png",
     },
     subscribers: {
       type: Number,
@@ -30,6 +31,5 @@ const UserSchema = mongoose.Schema(
   },
   { timestamps: true }
 );
-
 
 export default mongoose.model("User", UserSchema);

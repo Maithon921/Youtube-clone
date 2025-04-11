@@ -28,7 +28,7 @@ const VideoSchema = mongoose.Schema(
     },
     viewBy: {
       type: [String],
-      default:[],
+      default: [],
     },
     tags: {
       type: [String],
@@ -42,8 +42,9 @@ const VideoSchema = mongoose.Schema(
       type: [String],
       default: [],
     },
-    category:  {
+    category: {
       type: String,
+      default: "uncategorized",
     },
     videoPublicId: {
       type: String,

@@ -1,11 +1,11 @@
-
 import axios from "axios";
 
+// setting base url
 const axiosInstance = axios.create({
-  baseURL: "http://localhost:5000/api",
+  baseURL: import.meta.env.VITE_API_BASE_URL,
 });
 
-// 🔐 Automatically attach token from localStorage
+//  Automatically attach token from localStorage
 axiosInstance.interceptors.request.use((config) => {
   const token = localStorage.getItem("token");
   if (token) {
@@ -13,7 +13,7 @@ axiosInstance.interceptors.request.use((config) => {
   }
   return config;
 });
-
+// to use axios without sending token to use for cloudinary
 export const plainAxios = axios.create();
 
 export default axiosInstance;

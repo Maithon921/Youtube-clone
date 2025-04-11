@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react";
 import CloseIcon from "@mui/icons-material/Close";
-import axios from "./axiosInstance.js";
-import { toast, ToastContainer } from "react-toastify";
+import { toast} from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { plainAxios } from "./axiosInstance.js";
 import axiosInstance from "./axiosInstance.js";
 
 function Upload({ setOpen }) {
+  // form states  to handle form values locally
   const [img, setImg] = useState(undefined);
   const [video, setVideo] = useState(undefined);
   const [imgProgress, setImgProgress] = useState(0);
@@ -15,12 +15,13 @@ function Upload({ setOpen }) {
   const [desc, setDesc] = useState("");
   const [tags, setTags] = useState([]);
   const [category, setCategory] = useState("");
-
+  //states to store cloudinary url and publicId
   const [imgUrl, setImgUrl] = useState("");
   const [videoUrl, setVideoUrl] = useState("");
   const [imgPublicId, setImgPublicId] = useState("");
   const [videoPublicId, setVideoPublicId] = useState("");
 
+  // reset the form when submited or when modal is closed without submitting
   const resetForm = () => {
     setImg(undefined);
     setVideo(undefined);
@@ -36,19 +37,23 @@ function Upload({ setOpen }) {
     setVideoPublicId("");
   };
 
+  // converts tags string to array by comma
   const handleTags = (e) => {
     setTags(e.target.value.split(","));
   };
 
+  // handles file uploading for either image or video to cloudinary
   const uploadFile = (file, type) => {
     if (!file) return;
 
     const data = new FormData();
     data.append("file", file);
-    data.append("upload_preset", "ViewTube");
-    data.append("cloud_name", "drbk4qx0n");
+    data.append("upload_preset", import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET);
+    data.append("cloud_name", import.meta.env.VITE_CLOUDINARY_CLOUD_NAME);
 
-    const url = `https://api.cloudinary.com/v1_1/drbk4qx0n/${type === "video" ? "video" : "image"}/upload`;
+    const url = `https://api.cloudinary.com/v1_1/${
+      import.meta.env.VITE_CLOUDINARY_CLOUD_NAME
+    }/${type === "video" ? "video" : "image"}/upload`;
 
     const config = {
       onUploadProgress: (e) => {
@@ -74,6 +79,7 @@ function Upload({ setOpen }) {
       });
   };
 
+  // start upload as soon as file is selected
   useEffect(() => {
     if (video) uploadFile(video, "video");
   }, [video]);
@@ -82,14 +88,16 @@ function Upload({ setOpen }) {
     if (img) uploadFile(img, "image");
   }, [img]);
 
+  // to make sure all necessary feilds are filled
   const handleUpload = async () => {
     if (!title || !desc || !imgUrl || !videoUrl) {
       toast.error("Please fill all fields and wait for uploads to complete.");
       return;
     }
 
+    // sends data to backend
     try {
-       await axiosInstance.post("/videos", {
+      await axiosInstance.post("/videos", {
         title,
         description: desc,
         imgUrl,
@@ -100,8 +108,8 @@ function Upload({ setOpen }) {
         category,
       });
 
-
       toast.success("Video uploaded successfully!");
+      // close form and resets from after short delay
       setTimeout(() => {
         setOpen(false);
         resetForm();
@@ -113,23 +121,34 @@ function Upload({ setOpen }) {
   };
 
   return (
-    <>
+
       <div
-        className="min-h-dvh w-full mt-7 z-20 absolute top-0 left-0 bg-[#000000a7] flex justify-center items-center"
+        className="fixed inset-0 w-full top-14 z-20 bg-[#000000a7] flex justify-center items-center"
         onClick={() => {
           setOpen(false);
           resetForm();
         }}
       >
+        {/* modal container */}
         <div
           className="w-[280px] sm:w-[350px] md:w-[450px] max-h-[600px] overflow-y-auto rounded-md bg-light-bgLighter relative dark:bg-dark-bgLighter text-light-text dark:text-dark-text p-5 flex flex-col gap-3 text-xs sm:text-sm"
-          onClick={(e) => e.stopPropagation()}
+          onClick={(e) => e.stopPropagation()} // prevents modal from closing when clicking inside
         >
-          <div className="absolute top-1 right-2 cursor-pointer" onClick={() => { setOpen(false); resetForm(); }}>
+          {/* close icon */}
+          <div
+            className="absolute top-1 right-2 cursor-pointer"
+            onClick={() => {
+              setOpen(false);
+              resetForm();
+            }}
+          >
             <CloseIcon />
           </div>
-          <h1 className="text-center text-base font-semibold">Upload a new Video</h1>
+          <h1 className="text-center text-base font-semibold">
+            Upload a new Video
+          </h1>
 
+          {/* video input */}
           <label>Video:</label>
           <input
             type="file"
@@ -140,7 +159,10 @@ function Upload({ setOpen }) {
           {videoProgress > 0 && (
             <div className="mb-1">
               <div className="w-full h-2 bg-gray-300 rounded overflow-hidden mb-1">
-                <div className="h-full bg-red-500" style={{ width: `${videoProgress}%` }} />
+                <div
+                  className="h-full bg-red-500"
+                  style={{ width: `${videoProgress}%` }}
+                />
               </div>
               <p className="text-xs text-red-500 text-right">
                 {videoProgress < 100 ? `${videoProgress}%` : "Uploaded"}
@@ -148,7 +170,7 @@ function Upload({ setOpen }) {
             </div>
           )}
 
-
+          {/* image input */}
           <label>Thumbnail Image </label>
           <input
             type="file"
@@ -159,14 +181,17 @@ function Upload({ setOpen }) {
           {imgProgress > 0 && (
             <div className="mb-1">
               <div className="w-full h-2 bg-gray-300 rounded overflow-hidden mb-1">
-                <div className="h-full bg-blue-500" style={{ width: `${imgProgress}%` }} />
+                <div
+                  className="h-full bg-blue-500"
+                  style={{ width: `${imgProgress}%` }}
+                />
               </div>
               <p className="text-xs text-blue-500 text-right">
                 {imgProgress < 100 ? `${imgProgress}%` : "Uploaded"}
               </p>
             </div>
           )}
-
+          {/* text inputs */}
           <input
             type="text"
             placeholder="Title"
@@ -194,7 +219,7 @@ function Upload({ setOpen }) {
             onChange={(e) => setCategory(e.target.value)}
             className="border border-light-soft dark:border-dark-soft p-2 rounded bg-transparent"
           />
-
+          {/* upload button */}
           <button
             onClick={handleUpload}
             className="rounded border-none py-2 px-5 font-medium cursor-pointer bg-light-soft dark:bg-dark-soft text-light-textSoft dark:text-dark-textSoft"
@@ -203,9 +228,6 @@ function Upload({ setOpen }) {
           </button>
         </div>
       </div>
-
-      <ToastContainer position="top-right" autoClose={2500} />
-    </>
   );
 }
 

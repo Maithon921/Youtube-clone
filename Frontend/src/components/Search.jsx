@@ -7,7 +7,7 @@ function Search() {
   const query = useLocation().search;
   const [videos, setVideos] = useState([]);
   const navigate = useNavigate();
-
+  // get videos based on the keyword entered by user
   useEffect(() => {
     const fetchVideos = async () => {
       const res = await axios.get(`/videos/search${query}`);
@@ -17,6 +17,7 @@ function Search() {
   }, [query]);
 
   return (
+    // display if video is found else display text
     <div
       className={`flex flex-wrap gap-2 py-2 justify-center min-h-screen ${
         videos.length == 0 ? "items-center" : ""
